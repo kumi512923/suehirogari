@@ -59,7 +59,7 @@ a{color:#963434}a:hover{color:#262626}
     <p style="margin: 8px 0 0; font-size: 13px; letter-spacing: 0.3em; color: #963434">2026.12 — 2027.01</p>
     <h1 style="margin: 0; font-family: 'Klee One', serif; font-weight: 600; font-size: clamp(23px, 6.2vw, 52px); line-height: 1.7; letter-spacing: 0.03em">2027年<br>どんな面白いことしようか。</h1>
     <p style="margin: 0; font-size: clamp(18px, 2.2vw, 24px); letter-spacing: 0.35em; color: #963434">末広がりセッション</p>
-    <button type="button" class="dogbtn" aria-label="わんこをタップ" data-on-click="jumpDog" data-b-style="margin-top: 48px; animation: {{dogJump}} 0.8s ease-out"><img class="fuwa" src="images/dog.webp" alt="8を抱えた白いわんこ" style="width: clamp(160px, 18vw, 220px); height: auto; mix-blend-mode: multiply; display: block"></button>
+    <button type="button" class="dogbtn" aria-label="わんこをタップ" data-ref="dog1Ref" data-on-click="jumpDog" data-b-style="margin-top: 48px; animation: {{dogJump}} 0.8s ease-out"><img class="fuwa" src="images/dog.webp" alt="8を抱えた白いわんこ" style="width: clamp(160px, 18vw, 220px); height: auto; mix-blend-mode: multiply; display: block"></button>
   </section>
 
   <section style="padding: 88px 24px 120px; display: flex; justify-content: center">
@@ -295,9 +295,9 @@ class DCLogic {
 class Component extends DCLogic {
   constructor(props) {
     super(props);
-    this.state = { photo: false, s: false, c: false, laugh: false, mini1: false, mini2: false, hero: false, intro: false, close: false, price: false, end: false, prof: false, btn: false, priceText: '8,888', bg: 0, jump: 0, jump2: 0, kuji: -1, kujiN: 0, burstN: 0, phase: 0, pick: 0 };
+    this.state = { photo: false, s: false, c: false, laugh: false, mini1: false, mini2: false, hero: false, intro: false, close: false, price: false, end: false, prof: false, btn: false, dog1: false, priceText: '8,888', bg: 0, jump: 0, jump2: 0, kuji: -1, kujiN: 0, burstN: 0, phase: 0, pick: 0 };
     this._els = {};
-    ['photo','s','c','laugh','mini1','mini2','hero','intro','close','price','end','prof','btn'].forEach((k) => { this[k + 'Ref'] = (el) => { this._els[k] = el; }; });
+    ['photo','s','c','laugh','mini1','mini2','hero','intro','close','price','end','prof','btn','dog1'].forEach((k) => { this[k + 'Ref'] = (el) => { this._els[k] = el; }; });
     this.kujis = [["大吉", "好きを仕事に全振りしていい年"], ["大吉", "値上げしても、ちゃんと選ばれる年"], ["大吉", "「私なんか」を手放した瞬間、一気に広がる年"], ["大吉", "あなたの「好き」に人が集まってくる年"], ["中吉", "立ち止まった分だけ、遠くまで跳べる年"], ["中吉", "誰かの真似をやめたところから流れが変わる年"], ["吉", "ずっと温めてたアイデアが、ついに孵る年"], ["末吉", "あとからじわじわ末広がりになる年"]];
     this.jumpDog = () => this.setState({ jump: this.state.jump + 1 });
     this.jumpDog2 = () => this.setState({ jump2: this.state.jump2 + 1 });
@@ -336,6 +336,8 @@ class Component extends DCLogic {
       entries.forEach((e) => {
         const key = Object.keys(this._els).find((k) => this._els[k] === e.target);
         if (!key || this.state[key] === e.isIntersecting) return;
+        if (key === 'dog1' && e.isIntersecting) { this.setState({ dog1: true }); clearTimeout(this._dj1); this._dj1 = setTimeout(() => this.jumpDog(), 350); return; }
+        if (key === 'end' && e.isIntersecting) { clearTimeout(this._dj2); this._dj2 = setTimeout(() => this.jumpDog2(), 1300); }
         if (key === 'btn' && e.isIntersecting) { this.setState({ btn: true, burstN: this.state.burstN + 1 }); return; }
         this.setState({ [key]: e.isIntersecting });
               });
@@ -345,7 +347,7 @@ class Component extends DCLogic {
   componentWillUnmount() {
     if (this._io) this._io.disconnect();
     window.removeEventListener('scroll', this.onScroll);
-    clearInterval(this._ri); clearTimeout(this._kt); clearTimeout(this._kt2);
+    clearInterval(this._ri); clearTimeout(this._kt); clearTimeout(this._kt2); clearTimeout(this._dj1); clearTimeout(this._dj2);
   }
   renderVals() {
     const st = this.state;
@@ -384,7 +386,7 @@ class Component extends DCLogic {
       kujiNo: st.kuji >= 0 ? '第' + ["一", "二", "三", "四", "五", "六", "七", "八"][st.kuji] + '番' : '',
       kujiRank: k[0], kujiWord: k[1],
       burst: this.burst,
-      btnRef: this.btnRef,
+      btnRef: this.btnRef, dog1Ref: this.dog1Ref,
       burstAn: st.burstN === 0 ? 'none' : (st.burstN % 2 ? 'fanOpen' : 'fanOpenB'),
       sparkAn: st.burstN === 0 ? 'none' : (st.burstN % 2 ? 'spark' : 'sparkB')
     };
