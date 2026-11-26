@@ -81,6 +81,19 @@ a{color:#963434}a:hover{color:#262626}
     </div>
   </section>
 
+  <section style="padding: 136px 24px 128px; display: flex; justify-content: center">
+    <div data-ref="storyRef" data-b-style="max-width: 560px; width: 100%; text-align: center; font-size: 16px; display: flex; flex-direction: column; gap: 48px; align-items: center; word-break: keep-all; overflow-wrap: anywhere; --fi: {{storyFi}}">
+      <p class="fi" style="animation-delay: 0.00s; margin: 0">才能も運気も、<br>知ってるだけじゃ、なかなか動けない。</p>
+      <div class="fi" style="animation-delay: 0.45s; width: 100%; box-sizing: border-box; padding: 44px 8px; border-top: 1px solid rgba(176,153,106,0.6); border-bottom: 1px solid rgba(176,153,106,0.6)">
+        <p style="margin: 0; display: inline-block; text-align: left; font-family: 'Klee One', serif; font-weight: 600; font-size: clamp(19px, 4.8vw, 22px); line-height: 2.1; letter-spacing: 0.04em; color: #963434">「あなたは年柱の星が<wbr>沐浴だから、<span style="display: block; padding-left: 1em">もっと沢山の人と<wbr>一緒にやる講座とかが良いよ」</span></p>
+      </div>
+      <p class="fi" style="animation-delay: 0.90s; margin: 0">そう伝えたクライアントさんは、<br>そのあと講座を募集して<br><span style="font-weight: 500; background: linear-gradient(transparent 68%, rgba(176,153,106,0.32) 68%); padding: 0 2px">当時の最高月商200万円</span>を叩き出しました。</p>
+      <span class="fi" style="animation-delay: 1.20s; width: 8px; height: 8px; border-radius: 999px; background: #B0996A"></span>
+      <p class="fi" style="animation-delay: 1.40s; margin: 0">星を知ることじゃなくて、<br>星を「どう使うか」が決まった瞬間に、<br>人は動き出す。</p>
+      <p class="fi" style="animation-delay: 1.80s; margin: 0; font-family: 'Zen Maru Gothic', sans-serif; font-size: 20px; line-height: 2.1">その「使い方」まで<wbr>一緒に決めるのが、<br><span style="color: #963434">末広がりセッション</span>です。</p>
+    </div>
+  </section>
+
   <section style="padding: 120px clamp(40px, 10vw, 96px); display: flex; justify-content: center">
     <div style="max-width: 600px; width: 100%; display: flex; flex-direction: column; gap: 72px">
       <div style="display: flex; flex-direction: column; align-items: center; gap: 20px; text-align: center">
@@ -295,9 +308,9 @@ class DCLogic {
 class Component extends DCLogic {
   constructor(props) {
     super(props);
-    this.state = { photo: false, s: false, c: false, laugh: false, mini1: false, mini2: false, hero: false, intro: false, close: false, price: false, end: false, prof: false, btn: false, dog1: false, priceText: '8,888', bg: 0, jump: 0, jump2: 0, kuji: -1, kujiN: 0, burstN: 0, phase: 0, pick: 0 };
+    this.state = { photo: false, s: false, c: false, laugh: false, mini1: false, mini2: false, hero: false, intro: false, close: false, price: false, end: false, prof: false, btn: false, dog1: false, story: false, priceText: '8,888', bg: 0, jump: 0, jump2: 0, kuji: -1, kujiN: 0, burstN: 0, phase: 0, pick: 0 };
     this._els = {};
-    ['photo','s','c','laugh','mini1','mini2','hero','intro','close','price','end','prof','btn','dog1'].forEach((k) => { this[k + 'Ref'] = (el) => { this._els[k] = el; }; });
+    ['photo','s','c','laugh','mini1','mini2','hero','intro','close','price','end','prof','btn','dog1','story'].forEach((k) => { this[k + 'Ref'] = (el) => { this._els[k] = el; }; });
     this.kujis = [["大吉", "好きを仕事に全振りしていい年"], ["大吉", "値上げしても、ちゃんと選ばれる年"], ["大吉", "「私なんか」を手放した瞬間、一気に広がる年"], ["大吉", "あなたの「好き」に人が集まってくる年"], ["中吉", "立ち止まった分だけ、遠くまで跳べる年"], ["中吉", "誰かの真似をやめたところから流れが変わる年"], ["吉", "ずっと温めてたアイデアが、ついに孵る年"], ["末吉", "あとからじわじわ末広がりになる年"]];
     this.jumpDog = () => this.setState({ jump: this.state.jump + 1 });
     this.jumpDog2 = () => this.setState({ jump2: this.state.jump2 + 1 });
@@ -331,17 +344,22 @@ class Component extends DCLogic {
   }
   componentDidMount() {
     window.addEventListener('scroll', this.onScroll, { passive: true });
-    if (typeof IntersectionObserver === 'undefined') { this.setState({ photo: true, s: true, c: true, laugh: true, mini1: true, mini2: true, hero: true, intro: true, close: true, end: true, prof: true }); return; }
+    if (typeof IntersectionObserver === 'undefined') { this.setState({ story: true, photo: true, s: true, c: true, laugh: true, mini1: true, mini2: true, hero: true, intro: true, close: true, end: true, prof: true }); return; }
     this._io = new IntersectionObserver((entries) => {
       entries.forEach((e) => {
         const key = Object.keys(this._els).find((k) => this._els[k] === e.target);
-        if (!key || this.state[key] === e.isIntersecting) return;
+        // 見えはじめ（15%）で表示、完全に画面の外に出てから非表示に戻す
+        const on = e.isIntersecting && e.intersectionRatio >= 0.15;
+        if (!key) return;
+        if (e.isIntersecting && !on) return;
+        if (this.state[key] === on) return;
+        e = { isIntersecting: on };
         if (key === 'dog1' && e.isIntersecting) { this.setState({ dog1: true }); clearTimeout(this._dj1); this._dj1 = setTimeout(() => this.jumpDog(), 350); return; }
         if (key === 'end' && e.isIntersecting) { clearTimeout(this._dj2); this._dj2 = setTimeout(() => this.jumpDog2(), 1300); }
         if (key === 'btn' && e.isIntersecting) { this.setState({ btn: true, burstN: this.state.burstN + 1 }); return; }
         this.setState({ [key]: e.isIntersecting });
               });
-    }, { threshold: 0.15 });
+    }, { threshold: [0, 0.15] });
     Object.values(this._els).forEach((el) => { if (el) this._io.observe(el); });
   }
   componentWillUnmount() {
@@ -386,7 +404,8 @@ class Component extends DCLogic {
       kujiNo: st.kuji >= 0 ? '第' + ["一", "二", "三", "四", "五", "六", "七", "八"][st.kuji] + '番' : '',
       kujiRank: k[0], kujiWord: k[1],
       burst: this.burst,
-      btnRef: this.btnRef, dog1Ref: this.dog1Ref,
+      btnRef: this.btnRef, dog1Ref: this.dog1Ref, storyRef: this.storyRef,
+      storyFi: st.story ? 'fiUp' : 'none',
       burstAn: st.burstN === 0 ? 'none' : (st.burstN % 2 ? 'fanOpen' : 'fanOpenB'),
       sparkAn: st.burstN === 0 ? 'none' : (st.burstN % 2 ? 'spark' : 'sparkB')
     };
